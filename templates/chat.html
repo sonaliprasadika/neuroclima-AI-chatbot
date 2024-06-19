@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat with RuleBot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        #chatbox {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        #messages {
+            margin-bottom: 10px;
+        }
+        .message {
+            margin: 5px 0;
+        }
+        .user {
+            color: blue;
+        }
+        .bot {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <h1>Chat with RuleBot</h1>
+    <div id="chatbox">
+        <div id="messages"></div>
+        <form id="chat-form">
+            <input type="text" id="user-input" placeholder="Type your message here..." required>
+            <button type="submit">Send</button>
+        </form>
+    </div>
+
+    <script>
+        const chatForm = document.getElementById('chat-form');
+        const userInput = document.getElementById('user-input');
+        const messages = document.getElementById('messages');
+
+        chatForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const userMessage = userInput.value;
+            userInput.value = '';
+
+            const userMessageElement = document.createElement('div');
+            userMessageElement.textContent = `You: ${userMessage}`;
+            userMessageElement.classList.add('message', 'user');
+            messages.appendChild(userMessageElement);
+
+            fetch('/get', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: `msg=${encodeURIComponent(userMessage)}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                const botMessageElement = document.createElement('div');
+                botMessageElement.textContent = `Bot: ${data.response}`;
+                botMessageElement.classList.add('message', 'bot');
+                messages.appendChild(botMessageElement);
+                messages.scrollTop = messages.scrollHeight; // Auto-scroll to the latest message
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                const errorMessageElement = document.createElement('div');
+                errorMessageElement.textContent = 'Error: Could not get a response from the bot.';
+                errorMessageElement.classList.add('message', 'bot');
+                messages.appendChild(errorMessageElement);
+                messages.scrollTop = messages.scrollHeight; // Auto-scroll to the latest message
+            });
+        });
+    </script>
+</body>
+</html>
