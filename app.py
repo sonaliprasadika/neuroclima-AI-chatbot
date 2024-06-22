@@ -1,17 +1,14 @@
 from flask import Flask, render_template
 from flask_restful import Api
-from data_model.weather_responses import WeatherResponses
-from routes import StoreResponse, GetResponse
+from resources.storeResource import StoreResource
+from resources.getResource import GetResource
 
 app = Flask(__name__)
 api = Api(app)
 
-# Initialize the WeatherResponses class
-weather_responses = WeatherResponses()
-
 # Add routes to the API
-api.add_resource(StoreResponse, '/store_responses')
-api.add_resource(GetResponse, '/get_response')
+api.add_resource(StoreResource, '/store')
+api.add_resource(GetResource, '/get')
 
 @app.route("/")
 def index():
