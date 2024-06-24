@@ -1,3 +1,4 @@
-flask
-transformers
 torch
+transformers
+"numpy<2"
+faiss-cpu
