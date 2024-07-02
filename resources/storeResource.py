@@ -1,11 +1,11 @@
 from flask import jsonify, request, make_response, json
 from flask_restful import Resource
-from data_model.db import db
+from data_model.elastic_search import es
 import random
 
 class StoreResource(Resource):
     def __init__(self):
-        self.collection = db.weather_responses
+        self.index = "weather_responses"
 
     def post(self):
         data = request.get_json()
@@ -18,5 +18,10 @@ class StoreResource(Resource):
         if not response_type or not responses:
             return make_response(json.dumps({"error": "Invalid data provided"}), 400)
 
-        self.collection.insert_one({"type": response_type, "responses": responses})
-        return  make_response(json.dumps({"message": "Responses stored successfully"}), 201)
+        doc = {"type": response_type, "responses": responses}
+
+        try:
+            res = es.index(index=self.index, body=doc)
+            return make_response(json.dumps({"message": "Responses stored successfully", "id": res['_id']}), 201)
+        except Exception as e:
+            return make_response(json.dumps({"error": str(e)}), 500)
