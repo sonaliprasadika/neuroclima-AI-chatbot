@@ -2,3 +2,4 @@ torch
 transformers
 "numpy<2"
 faiss-cpu
+langchain_elasticsearch

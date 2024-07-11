@@ -21,7 +21,7 @@ class GetResource(Resource):
 
             try:
                 res = es.search(index=self.index, body=query)
-                print(dir(es))
+                res.get
                 hits = res['hits']['hits']
                 if hits:
                     responses = hits[0]['_source']['responses']
