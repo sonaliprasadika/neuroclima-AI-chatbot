@@ -98,12 +98,12 @@
             userMessageElement.classList.add('message', 'user');
             messages.appendChild(userMessageElement);
 
-            fetch('/get', {
+            fetch('/get', {  
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ type: userMessage })
+                body: JSON.stringify({ query: userMessage })
             })
             .then(response => response.json())
             .then(data => {
@@ -111,7 +111,12 @@
                 if (data.error) {
                     botMessageElement.textContent = `Bot: ${data.error}`;
                 } else {
-                    botMessageElement.textContent = `Bot: ${data}`;
+                    botMessageElement.innerHTML = `
+                        <p>Bot Response: ${data.response}</p>
+                        <p>Summary: ${data.summary || "No summary provided"}</p>
+                        <p>Topics: ${JSON.stringify(data.topics)}</p>
+                        <p>Entities: ${JSON.stringify(data.entities)}</p>
+                    `;
                 }
                 botMessageElement.classList.add('message', 'bot');
                 messages.appendChild(botMessageElement);

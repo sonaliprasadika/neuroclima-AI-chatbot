@@ -212,7 +212,7 @@ import logging
 logging.basicConfig(filename='bulk_index_errors.log', level=logging.ERROR)
 
 # Load the dataset
-df = pd.read_csv('../dataset/combined_dataset.csv', encoding='latin1')
+df = pd.read_csv('dataset/combined_dataset.csv', encoding='latin1')
 print(df.head())
 
 # Connect to Elasticsearch
