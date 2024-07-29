@@ -110,12 +110,16 @@
                 const botMessageElement = document.createElement('div');
                 if (data.error) {
                     botMessageElement.textContent = `Bot: ${data.error}`;
+                // } else {
+                //     botMessageElement.innerHTML = `
+                //         <p>Bot Response: ${data.response}</p>
+                //         <p>Summary: ${data.summary || "No summary provided"}</p>
+                //         <p>Topics: ${JSON.stringify(data.topics)}</p>
+                //         <p>Entities: ${JSON.stringify(data.entities)}</p>
+                //     `;
                 } else {
                     botMessageElement.innerHTML = `
-                        <p>Bot Response: ${data.response}</p>
-                        <p>Summary: ${data.summary || "No summary provided"}</p>
-                        <p>Topics: ${JSON.stringify(data.topics)}</p>
-                        <p>Entities: ${JSON.stringify(data.entities)}</p>
+                        <p>${data.response}</p>
                     `;
                 }
                 botMessageElement.classList.add('message', 'bot');

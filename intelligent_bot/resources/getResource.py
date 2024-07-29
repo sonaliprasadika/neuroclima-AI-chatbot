@@ -32,9 +32,9 @@ class GetResource(Resource):
 
                 # Prepare the response data
                 response_data = {
-                    "topics": result["topics"],
-                    "entities": result["entities"],
-                    "summary": result.get("summary", ""),
+                    # "topics": result["topics"],
+                    # "entities": result["entities"],
+                    # "summary": result.get("summary", ""),
                     "response": result["response"]
                 }
 

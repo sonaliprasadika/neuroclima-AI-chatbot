@@ -86,3 +86,266 @@ INFO:werkzeug:[33mPress CTRL+C to quit[0m
 INFO:werkzeug:85.131.116.170 - - [15/Jul/2024 19:28:41] "GET / HTTP/1.1" 200 -
 INFO:werkzeug:85.131.116.170 - - [15/Jul/2024 19:28:44] "POST /get HTTP/1.1" 200 -
 INFO:werkzeug:85.131.116.170 - - [15/Jul/2024 19:28:49] "POST /get HTTP/1.1" 200 -
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.215:5000
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug:78.27.83.118 - - [16/Jul/2024 06:30:54] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:78.27.83.118 - - [16/Jul/2024 06:30:54] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+INFO:werkzeug:78.27.83.118 - - [16/Jul/2024 06:30:59] "POST /get HTTP/1.1" 200 -
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.215:5000
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug:78.27.83.118 - - [16/Jul/2024 06:44:42] "POST /get HTTP/1.1" 200 -
+ERROR:root:Error processing query: cannot compute LDA over an empty collection (no terms)
+INFO:werkzeug:78.27.83.118 - - [16/Jul/2024 06:44:58] "[35m[1mPOST /get HTTP/1.1[0m" 500 -
+INFO:werkzeug:78.27.83.118 - - [16/Jul/2024 06:45:04] "POST /get HTTP/1.1" 200 -
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.215:5000
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug:78.27.83.118 - - [16/Jul/2024 06:46:53] "POST /get HTTP/1.1" 200 -
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.215:5000
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug:78.27.83.118 - - [16/Jul/2024 06:47:33] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:78.27.83.118 - - [16/Jul/2024 06:47:38] "POST /get HTTP/1.1" 200 -
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.215:5000
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.215:5000
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.215:5000
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+ERROR:werkzeug:167.94.145.99 - - [16/Jul/2024 07:25:03] code 400, message Bad request version ('À\x14À')
+INFO:werkzeug:167.94.145.99 - - [16/Jul/2024 07:25:03] "[35m[1m\x16\x03\x01\x00î\x01\x00\x00ê\x03\x03)\x04\x95ï\x8aªf¶Ð Ã\x1eA7HG\x01²{\x1a1E`Ó¬ã\x06\x04\x8e\x80è\x88 `W\x86c\x86I\\Õr\x13|ÎL\x95c÷rrÕý\x1d(\x8b¤fÉ%/È\\©\x12\x00&Ì¨Ì©À/À0À+À,À\x13À\x09À\x14À[0m" HTTPStatus.BAD_REQUEST -
+INFO:werkzeug:167.94.145.99 - - [16/Jul/2024 07:25:07] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:167.94.145.99 - - [16/Jul/2024 07:25:10] "GET / HTTP/1.1" 200 -
+ERROR:werkzeug:167.94.145.99 - - [16/Jul/2024 07:25:10] code 505, message Invalid HTTP version (2.0)
+INFO:werkzeug:167.94.145.99 - - [16/Jul/2024 07:25:10] "[35m[1mPRI * HTTP/2.0[0m" HTTPStatus.HTTP_VERSION_NOT_SUPPORTED -
+INFO:werkzeug:167.94.145.99 - - [16/Jul/2024 07:25:10] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.215:5000
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.215:5000
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.215:5000
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.215:5000
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.215:5000
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.215:5000
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.215:5000
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug:36.156.22.4 - - [16/Jul/2024 13:47:58] "GET / HTTP/1.0" 200 -
+INFO:werkzeug:36.156.22.4 - - [16/Jul/2024 13:47:59] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+INFO:werkzeug:36.156.22.4 - - [16/Jul/2024 13:47:59] "[33mGET /robots.txt HTTP/1.1[0m" 404 -
+INFO:werkzeug:36.156.22.4 - - [16/Jul/2024 13:48:00] "[33mGET /.well-known/security.txt HTTP/1.1[0m" 404 -
+ERROR:werkzeug:45.128.232.98 - - [16/Jul/2024 15:25:21] code 400, message Bad request syntax ('JDWP-Handshake')
+INFO:werkzeug:45.128.232.98 - - [16/Jul/2024 15:25:21] "[35m[1mJDWP-Handshake[0m" HTTPStatus.BAD_REQUEST -
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.215:5000
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.215:5000
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.215:5000
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug:82.128.133.120 - - [17/Jul/2024 06:24:19] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:82.128.133.120 - - [17/Jul/2024 06:24:19] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+INFO:werkzeug:82.128.133.120 - - [17/Jul/2024 06:24:43] "POST /get HTTP/1.1" 200 -
+INFO:werkzeug:82.128.133.120 - - [17/Jul/2024 06:25:15] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:82.128.133.120 - - [17/Jul/2024 06:25:20] "POST /get HTTP/1.1" 200 -
+INFO:werkzeug:82.128.133.120 - - [17/Jul/2024 06:25:22] "GET / HTTP/1.1" 200 -
+ERROR:root:Error processing query: index out of range in self
+INFO:werkzeug:82.128.133.120 - - [17/Jul/2024 06:31:43] "[35m[1mPOST /get HTTP/1.1[0m" 500 -
+ERROR:root:Error processing query: index out of range in self
+INFO:werkzeug:82.128.133.120 - - [17/Jul/2024 06:32:37] "[35m[1mPOST /get HTTP/1.1[0m" 500 -
+ERROR:root:Error processing query: index out of range in self
+INFO:werkzeug:82.128.133.120 - - [17/Jul/2024 06:33:40] "[35m[1mPOST /get HTTP/1.1[0m" 500 -
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.215:5000
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.215:5000
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.215:5000
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+ERROR:werkzeug:165.154.128.17 - - [17/Jul/2024 07:03:27] code 400, message Bad request version ('\x00\x9eÌ¨Ìª\x003\x00=\x00\x16À')
+INFO:werkzeug:165.154.128.17 - - [17/Jul/2024 07:03:27] "[35m[1m\x16\x03\x01\x01\x17\x01\x00\x01\x13\x03\x03\x906jA}@þ x\\¶#¿\x97º\x12Ø~h¹~zËý+¡d¸â¤\x85î ¨\x07=Ó\x90×Ö,*ÚèÏ$@`Oj\x947\x84ý¿-jähdÀÞï¹\x84\x004Ì¨Ì©À/À0À+À,À\x09\x00\x9eÌ¨Ìª\x003\x00=\x00\x16À[0m" HTTPStatus.BAD_REQUEST -
+INFO:werkzeug:165.154.128.17 - - [17/Jul/2024 07:03:37] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:165.154.128.17 - - [17/Jul/2024 07:03:38] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+INFO:werkzeug:165.154.128.17 - - [17/Jul/2024 07:03:38] "[33mGET /robots.txt HTTP/1.1[0m" 404 -
+INFO:werkzeug:165.154.128.17 - - [17/Jul/2024 07:03:38] "[33mGET /sitemap.xml HTTP/1.1[0m" 404 -
+INFO:werkzeug:165.154.128.17 - - [17/Jul/2024 07:03:38] "[33mGET /config.json HTTP/1.1[0m" 404 -
+INFO:werkzeug:147.185.132.37 - - [17/Jul/2024 07:45:02] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:82.128.133.120 - - [17/Jul/2024 08:03:33] "POST /get HTTP/1.1" 200 -
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.215:5000
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.215:5000
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.215:5000
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.215:5000
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.215:5000
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug:82.128.133.120 - - [17/Jul/2024 12:06:32] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:82.128.133.120 - - [17/Jul/2024 12:12:22] "POST /get HTTP/1.1" 200 -
+INFO:werkzeug:82.128.133.120 - - [17/Jul/2024 12:12:33] "POST /get HTTP/1.1" 200 -
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.215:5000
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug:162.142.125.44 - - [17/Jul/2024 13:04:24] "GET / HTTP/1.1" 200 -
+ERROR:werkzeug:162.142.125.44 - - [17/Jul/2024 13:04:27] code 505, message Invalid HTTP version (2.0)
+INFO:werkzeug:162.142.125.44 - - [17/Jul/2024 13:04:27] "[35m[1mPRI * HTTP/2.0[0m" HTTPStatus.HTTP_VERSION_NOT_SUPPORTED -
+INFO:werkzeug:162.142.125.44 - - [17/Jul/2024 13:04:29] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.215:5000
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug:78.27.74.60 - - [18/Jul/2024 07:28:52] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:78.27.74.60 - - [18/Jul/2024 07:28:52] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+INFO:werkzeug:78.27.74.60 - - [18/Jul/2024 07:33:48] "POST /get HTTP/1.1" 200 -
+INFO:werkzeug:207.90.244.2 - - [18/Jul/2024 13:37:23] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:207.90.244.2 - - [18/Jul/2024 13:37:24] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.215:5000
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug:78.27.76.73 - - [23/Jul/2024 12:53:35] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:78.27.76.73 - - [23/Jul/2024 12:53:35] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+INFO:werkzeug:78.27.76.73 - - [23/Jul/2024 12:53:41] "POST /get HTTP/1.1" 200 -
+INFO:werkzeug:13.91.179.162 - - [23/Jul/2024 18:10:09] "[33mGET /v2/ HTTP/1.1[0m" 404 -
+ERROR:werkzeug:199.45.154.123 - - [23/Jul/2024 23:57:43] code 400, message Bad request syntax ('\x16\x03\x01\x00î\x01\x00\x00ê\x03\x03Ë')
+INFO:werkzeug:199.45.154.123 - - [23/Jul/2024 23:57:43] "[35m[1m\x16\x03\x01\x00î\x01\x00\x00ê\x03\x03Ë[0m" HTTPStatus.BAD_REQUEST -
+INFO:werkzeug:199.45.154.123 - - [23/Jul/2024 23:57:47] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:199.45.154.123 - - [23/Jul/2024 23:57:52] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:199.45.154.123 - - [23/Jul/2024 23:57:53] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+ERROR:werkzeug:199.45.154.123 - - [23/Jul/2024 23:57:54] code 505, message Invalid HTTP version (2.0)
+INFO:werkzeug:199.45.154.123 - - [23/Jul/2024 23:57:54] "[35m[1mPRI * HTTP/2.0[0m" HTTPStatus.HTTP_VERSION_NOT_SUPPORTED -
+INFO:werkzeug:45.128.232.116 - - [24/Jul/2024 00:11:26] "[33mCONNECT google.com:443 HTTP/1.1[0m" 404 -
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.215:5000
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.215:5000
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.215:5000
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.215:5000
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.215:5000
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug:85.131.116.90 - - [24/Jul/2024 11:20:35] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:85.131.116.90 - - [24/Jul/2024 11:20:35] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+INFO:werkzeug:85.131.116.90 - - [24/Jul/2024 11:22:00] "POST /get HTTP/1.1" 200 -
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.215:5000
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug:85.131.116.90 - - [24/Jul/2024 11:37:04] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:85.131.116.90 - - [24/Jul/2024 11:38:31] "POST /get HTTP/1.1" 200 -
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.215:5000
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug:85.131.116.90 - - [24/Jul/2024 12:45:06] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:85.131.116.90 - - [24/Jul/2024 12:46:33] "POST /get HTTP/1.1" 200 -
+ERROR:werkzeug:167.94.145.100 - - [24/Jul/2024 12:52:56] code 400, message Bad request version ('À\x14À')
+INFO:werkzeug:167.94.145.100 - - [24/Jul/2024 12:52:56] "[35m[1m\x16\x03\x01\x00î\x01\x00\x00ê\x03\x03z\x8btù\x196Òã°{\x91\x93Ö;3\x1agÏ\x18õEr?¹³§&\x08¤\x8f\x03J dÞt\x80à¨\x00ÝQMñ§\x89Ðsý¹7-\x09Ø\x9aÕh7ÍÞ\x8e\x0e³$Å\x00&Ì¨Ì©À/À0À+À,À\x13À\x09À\x14À[0m" HTTPStatus.BAD_REQUEST -
+INFO:werkzeug:167.94.145.100 - - [24/Jul/2024 12:52:59] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:167.94.145.100 - - [24/Jul/2024 12:53:02] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:167.94.145.100 - - [24/Jul/2024 12:53:02] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+ERROR:werkzeug:167.94.145.100 - - [24/Jul/2024 12:53:02] code 505, message Invalid HTTP version (2.0)
+INFO:werkzeug:167.94.145.100 - - [24/Jul/2024 12:53:02] "[35m[1mPRI * HTTP/2.0[0m" HTTPStatus.HTTP_VERSION_NOT_SUPPORTED -
+INFO:werkzeug:85.131.116.90 - - [24/Jul/2024 13:13:07] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:85.131.116.90 - - [24/Jul/2024 13:13:07] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+INFO:werkzeug:85.131.116.90 - - [24/Jul/2024 13:14:34] "POST /get HTTP/1.1" 200 -
+INFO:werkzeug:85.131.116.90 - - [24/Jul/2024 13:22:11] "POST /get HTTP/1.1" 200 -
+INFO:werkzeug:185.242.226.47 - - [24/Jul/2024 17:18:48] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:205.210.31.29 - - [24/Jul/2024 21:18:32] "GET / HTTP/1.0" 200 -
