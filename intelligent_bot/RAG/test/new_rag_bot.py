@@ -97,16 +97,31 @@ def index_documents(df):
 # Example indexing call
 # index_documents(df)
 
-# Search documents
+# Search documents using topic modeling and entity recognition data
 def search_documents(query, index_name="policy_descriptions", size=3):
+    # Perform entity recognition and topic modeling on the query
+    entities = entity_recognition(query)
+    topics = topic_modeling([query])
+
+    # Extract entity texts and topic words
+    entity_texts = [ent[0] for ent in entities]
+    topic_words = [word for topic in topics for word in topic]
+
+    # Construct the search query
     search_query = {
         "query": {
-            "match": {
-                "policy_description": query
+            "bool": {
+                "should": [
+                    {"match": {"policy_description": query}},
+                    {"terms": {"entities.text": entity_texts}},
+                    {"terms": {"topics": topic_words}}
+                ],
+                "minimum_should_match": 1
             }
         },
         "size": size
     }
+
     response = es.search(index=index_name, body=search_query)
     return [hit["_source"] for hit in response["hits"]["hits"]]
 
@@ -148,25 +163,6 @@ prompt_template_text_generation = PromptTemplate(
     input_variables=["context", "query"],
     template="{context}\n"
 )
-
-# Define a function for topic modeling with enhanced preprocessing
-def topic_modeling(docs, num_topics=3, num_words=4):
-    stopwords = set(nlp.Defaults.stop_words)
-    texts = []
-    for doc in docs:
-        tokens = doc.lower().split()
-        tokens = [word.strip(string.punctuation) for word in tokens if word not in stopwords and len(word) > 1]
-        texts.append(tokens)
-        
-    dictionary = corpora.Dictionary(texts)
-    corpus = [dictionary.doc2bow(text) for text in texts]
-    lda = LdaModel(corpus, num_topics=num_topics, id2word=dictionary, passes=15)
-    
-    topics = []
-    for i, topic in lda.show_topics(formatted=False, num_words=num_words):
-        topics.append([word for word, _ in topic if word not in stopwords and len(word) > 1])
-    
-    return topics
 
 # Custom class for topic modeling
 class TopicModelingChain:
@@ -223,9 +219,16 @@ class CombinedChain:
         else:
             response = response_chain_text_generation.run(inputs)
         
+        # Extract entities and topics from the context
+        entities_result = entity_recognition_chain.run({"context": inputs["context"]})
+        topics_result = topic_modeling_chain.run({"docs": [inputs["context"]]})
+        
+        # Include entities and topics in the final result
         result = {
             "summary": inputs.get("context", None) if "summarize" in query or "summary" in query else None,
-            "response": response
+            "response": response,
+            "entities": entities_result.get("entities"),
+            "topics": topics_result.get("topics")
         }
         return result
 
@@ -247,5 +250,9 @@ inputs = {
 # Run the combined chain
 result = combined_chain.run(inputs)
 response = result["response"]
-print("Generated Response:", response)
+entities = result["entities"]
+topics = result["topics"]
 
+print("Generated Response:", response)
+print("Extracted Entities:", entities)
+print("Extracted Topics:", topics)

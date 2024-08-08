@@ -7,6 +7,8 @@ from gensim import corpora
 import spacy
 import pandas as pd
 import wikipediaapi
+import os
+import pickle  
 
 # Initialize retriever and generator models
 retriever_model_name = "bert-base-uncased"
@@ -23,7 +25,7 @@ summarizer_tokenizer = T5Tokenizer.from_pretrained(summarizer_model_name)
 summarizer_model = T5ForConditionalGeneration.from_pretrained(summarizer_model_name)
 
 #Load your dataset
-df = pd.read_csv('combined_dataset_training.csv', encoding='latin1')
+df = pd.read_csv('../dataset/combined_dataset_training.csv', encoding='latin1')
 print(df.head())
 
 # Extract countries and policy descriptions
@@ -59,12 +61,15 @@ def get_topic_distribution(text):
 
 document_topics = [get_topic_distribution(doc) for doc in combined_documents]
 
-def summarize_document(text, max_length=150):
-    input_text = "summarize: " + text
-    inputs = summarizer_tokenizer.encode(input_text, return_tensors="pt", max_length=512, truncation=True)
-    summary_ids = summarizer_model.generate(inputs, max_length=max_length, min_length=40, length_penalty=2.0, num_beams=4, early_stopping=True)
-    summary = summarizer_tokenizer.decode(summary_ids[0], skip_special_tokens=True)
-    return summary
+def summarize_documents(docs, max_length=150):
+    summaries = []
+    for doc in docs:
+        input_text = "summarize: " + doc
+        inputs = summarizer_tokenizer.encode(input_text, return_tensors="pt", max_length=512, truncation=True)
+        summary_ids = summarizer_model.generate(inputs, max_length=max_length, min_length=40, length_penalty=2.0, num_beams=4, early_stopping=True)
+        summary = summarizer_tokenizer.decode(summary_ids[0], skip_special_tokens=True)
+        summaries.append(summary)
+    return summaries
     
 def contextual_summarization(query, document, max_length=150):
     input_text = f"summarize: {query} context: {document}"
@@ -87,68 +92,97 @@ document_embeddings = np.vstack(document_embeddings)
 index = faiss.IndexFlatL2(document_embeddings.shape[1])
 index.add(document_embeddings)
 
-def retrieve_documents(query, countries=None, top_k=2):
+# Create directory if it does not exist
+os.makedirs('saved_data', exist_ok=True)
+
+# Save the FAISS index to a file in the 'saved_data' directory
+faiss.write_index(index, 'saved_data/retriever_index.faiss')
+    
+# Save the document embeddings to a NumPy file in the 'saved_data' directory
+with open('saved_data/document_embeddings.npy', 'wb') as f:
+    np.save(f, document_embeddings)
+    
+# Save metadata including combined documents, document entities, document topics, dictionary, and LDA model in the 'saved_data' directory
+with open('saved_data/metadata.pkl', 'wb') as f:
+    pickle.dump({
+        'combined_documents': combined_documents,
+        'document_entities': document_entities,
+        'document_topics': document_topics,
+        'dictionary': dictionary,
+        'lda_model': lda_model
+    }, f)
+
+def retrieve_documents(query, countries=None, top_k=4):
     inputs = retriever_tokenizer(query, return_tensors="pt", truncation=True, padding=True)
     outputs = retriever_model(**inputs)
     query_embedding = outputs.last_hidden_state.mean(dim=1).detach().numpy()
     
     # Perform FAISS search
-    distances, indices = index.search(query_embedding, min(top_k, len(combined_documents)))
+    distances, indices = index.search(query_embedding, len(combined_documents))
     
     # Get topics and entities of the query
     query_topics = get_topic_distribution(query)
     query_entities = extract_entities(query)
     
+    # Define key terms to boost relevance (e.g., "tax", "incentive")
+    key_terms = {"tax", "incentive", "EV", "electric vehicle"}
+
     # Score documents based on topic and entity relevance
     doc_scores = []
     for i in range(len(indices[0])):
         idx = indices[0][i]
 
-        # Filter based on countries if provided
+        # Prioritize based on countries if provided
         if countries and not any(country.lower() in combined_documents[idx].lower() for country in countries):
             continue
-            
+
         doc_topic_score = sum(query_topics.get(topic, 0) * weight for topic, weight in document_topics[idx].items())
         doc_entity_score = len(set(ent[0] for ent in query_entities) & set(ent[0] for ent in document_entities[idx]))
-        total_score = distances[0][i] - doc_topic_score + doc_entity_score
+
+        # Keyword matching score
+        doc_text = combined_documents[idx].lower()
+        keyword_score = sum(1 for term in key_terms if term in doc_text)
+
+        # Combine scores with appropriate weights
+        total_score = 0.5 * distances[0][i] - 2.0 * doc_topic_score + 2.0 * doc_entity_score - 3.0 * keyword_score
 
         # Boost score if the document matches any of the countries
         if any(country.lower() in combined_documents[idx].lower() for country in countries):
             total_score *= 0.5
-        
-        # # Boost score if the document matches the country
-        # if country and country.lower() in combined_documents[idx].lower():
-        #     total_score *= 0.5  # Adjust the boost factor as needed
-            
+
         doc_scores.append((total_score, idx))
-    
+
     # Sort documents by the combined score
     doc_scores.sort(key=lambda x: x[0])
+
+    # Print scores and corresponding documents
+    print("Scores and Retrieved Documents:")
+    for score, idx in doc_scores[:top_k]:
+        print(f"Score: {score}, Document: {combined_documents[idx]}")
+
     return [combined_documents[i] for _, i in doc_scores[:top_k]]
 
 def generate_response(query, countries=None):
     retrieved_docs = retrieve_documents(query, countries)
-    context = " ".join(retrieved_docs)
+    summaries = summarize_documents(retrieved_docs)
+    context = " ".join(summaries)
     
     # Ensure context length does not exceed the model's max length
     max_input_length = generator_tokenizer.model_max_length - 20  # Reserve tokens for question and answer parts
     context = generator_tokenizer.decode(generator_tokenizer.encode(context, max_length=max_input_length, truncation=True))
-    
-    # Summarize the context
-    summarized_context = contextual_summarization(query, context)
 
     # Augment the query with country-specific context
     if countries:
         country_list = ", ".join(countries)
-        augmented_query = f"Compare climate policies between {country_list}. Question: {query}\n\nsummarized_context: {summarized_context}\n\nAnswer:"
+        augmented_query = f"Question: {query}\n\nContext: {context}\n\nAnswer:"
     else:
-        augmented_query = f"Question: {query}\n\nsummarized_context: {summarized_context}\n\nAnswer:"
+        augmented_query = f"Question: {query}\n\nContext: {context}\n\nAnswer:"
     
     inputs = generator_tokenizer.encode(augmented_query, return_tensors="pt")
     
     outputs = generator_model.generate(
         inputs, 
-        max_length=150, 
+        max_length=1000, 
         temperature=0.7, 
         top_k=50, 
         top_p=0.95, 
@@ -159,7 +193,9 @@ def generate_response(query, countries=None):
     return response
 
 # Example usage
-query = "What are the UAE's plans for hydrogen production?"
-# country = "United Arab Emirates"
-response = generate_response(query)
+query = "What tax incentives does Norway provide for electric vehicles?"
+# country = ["United Kingdom"]
+country = ["Norway"]
+response = generate_response(query, country)
+print("Response:")
 print(response)
