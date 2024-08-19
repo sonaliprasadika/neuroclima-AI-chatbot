@@ -6,16 +6,20 @@ import spacy
 import os
 import json
 import openai
-from models.chunking_models import extract_entities, get_topic_distribution, summarize_documents
-from models.llm_models import (
+import random
+from dotenv import load_dotenv
+from langchain.chains import LLMChain
+from langchain.prompts import PromptTemplate
+from langchain_community.llms.huggingface_pipeline import HuggingFacePipeline
+from RAG.models.chunking_models import extract_entities, get_topic_distribution, summarize_documents
+from RAG.models.llm_models import (
     retriever_model,
     retriever_tokenizer,
     summarizer_model,
     summarizer_tokenizer,
 )
-
-# Set your OpenAI API key here
-openai.api_key = "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"
+from langchain.llms import OpenAI
+import time
 
 # Load the FAISS index and metadata from files
 index_with_ids = faiss.read_index('saved_data/retriever_index_with_ids.faiss')
@@ -23,6 +27,22 @@ index_with_ids = faiss.read_index('saved_data/retriever_index_with_ids.faiss')
 with open('saved_data/metadata.json', 'r', encoding='utf-8') as f:
     metadata = json.load(f)
 
+# Load environment variables from .env file
+load_dotenv()
+
+# Set the API key using the environment variable
+openai.api_key = os.getenv("OPENAI_API_KEY")
+
+# Define a custom LLM class for OpenAI GPT-3.5
+def OpenAI_GPT3_5_LLM(model, max_tokens=150, temperature=0.7, top_p=1):
+    # Return a LangChain OpenAI LLM instance configured with the provided parameters
+    return OpenAI(
+        model_name=model,
+        max_tokens=max_tokens,
+        temperature=temperature,
+        top_p=top_p
+    )
+    
 # Function to retrieve documents based on the query
 def retrieve_documents(query, countries=None, top_k=4):
     # Tokenize and encode the query using the retriever model
@@ -61,43 +81,76 @@ def retrieve_documents(query, countries=None, top_k=4):
 
 # Updated generate_response function to use GPT-3.5 via OpenAI API
 def generate_response(query, countries=None):
-    # Retrieve and summarize documents
-    retrieved_docs = retrieve_documents(query, countries)
-    summaries = summarize_documents(retrieved_docs)
-    context = " ".join(summaries)
+    # Predefined responses for greetings and small talk
+    greeting_responses = [
+        "Hello! How can I assist you today?",
+        "Hi there! What can I do for you?",
+        "Greetings! How can I help you today?"
+    ]
     
-    # Ensure the context length does not exceed the model's max length
-    max_input_length = 4096 - 500  # Assuming the max token length for GPT-3.5-turbo is 4096 tokens
-    context = context[:max_input_length]
-
-    # Augment the query with the context
-    if countries:
-        country_list = ", ".join(countries)
-        augmented_query = f"Question: {query}\n\nRelevant information extracted from documents related to {country_list}:\n\n{context}\n\nAnswer:"
+    thank_you_responses = [
+        "You're welcome! Is there anything else you need?",
+        "No problem! Happy to help.",
+        "Glad I could assist. Anything else?"
+    ]
+    
+    farewell_responses = [
+        "Goodbye! Have a great day!",
+        "Take care! If you need anything, feel free to ask.",
+        "Bye! I'm here if you need more help."
+    ]
+    
+    # Handling greetings
+    if query.lower() in ["hello", "hi", "hey", "greetings"]:
+        return random.choice(greeting_responses)
+    
+    # Handling thank you
+    elif "thank" in query.lower():
+        return random.choice(thank_you_responses)
+    
+    # Handling farewells
+    elif query.lower() in ["bye", "goodbye", "see you", "take care"]:
+        return random.choice(farewell_responses)
+    
+    # For all other queries, proceed with the document retrieval and generation
     else:
-        augmented_query = f"Question: {query}\n\nRelevant information extracted from documents:\n\n{context}\n\nAnswer:"
-
-    # Generate a response using the OpenAI API
-    try:
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "You are a helpful assistant."},
-                {"role": "user", "content": augmented_query}
-            ],
-            max_tokens=500,  # Adjust the number of tokens as needed
-            temperature=0.7,
-            top_p=0.95,
+        start_time = time.time() 
+        # Retrieve and summarize documents
+        retrieved_docs = retrieve_documents(query, countries)
+        summaries = summarize_documents(retrieved_docs)
+        context = " ".join(summaries)
+        
+        # Ensure the context length does not exceed the model's max length
+        max_input_length = 4096 - 500  # Adjust based on your model's max token length
+        context = context[:max_input_length]
+        
+        # Define a prompt template
+        prompt_template = PromptTemplate(
+            input_variables=["query", "context"], 
+            template="Question: {query}\n\nContext: {context}\n\nAnswer:"
         )
+        
+        # Initialize the OpenAI GPT-3.5 LLM instance
+        gpt3_5_llm = OpenAI_GPT3_5_LLM("gpt-3.5-turbo")
+        
+        # Initialize the LLMChain with the prompt template and GPT-3.5 LLM
+        llm_chain = LLMChain(prompt=prompt_template, llm=gpt3_5_llm)
+        
+        # Generate the response using LangChain
+        response = llm_chain.run({"query": query, "context": context})
+        
+        end_time = time.time()  # Record end time
+        
+        # Calculate the duration
+        duration = end_time - start_time
+        
+        # Log or display the duration
+        print(f"Response generation took {duration:.2f} seconds.")
 
-        # Extract and return the response text
-        return response['choices'][0]['message']['content'].strip()
-    except Exception as e:
-        print(f"An error occurred: {e}")
-        return "Sorry, I couldn't generate a response."
+        return response
 
 # Example usage
-query = "What tax incentives does Norway provide for electric vehicles?"
+query = "What measures has Norway implemented to reduce methane emissions?"
 country = ["Norway"]
 response = generate_response(query, country)
 print("Response:")

@@ -1,258 +1,99 @@
-import string
-import pandas as pd
-from elasticsearch import Elasticsearch
-from elasticsearch.helpers import bulk
-from transformers import (
-    BartForConditionalGeneration, BartTokenizer,
-    DistilBertForQuestionAnswering, DistilBertTokenizer,
-    T5ForConditionalGeneration, T5Tokenizer,
-    GPT2LMHeadModel, GPT2Tokenizer,
-    pipeline
-)
-from langchain.chains import LLMChain
-from langchain_community.llms.huggingface_pipeline import HuggingFacePipeline
-from langchain.prompts import PromptTemplate
+import torch
+from transformers import AutoTokenizer, AutoModel, GPT2Tokenizer, GPT2LMHeadModel, T5Tokenizer, T5ForConditionalGeneration, pipeline
+import faiss
+import numpy as np
 import spacy
-from gensim import corpora
-from gensim.models import LdaModel
-import logging
-import re
-
-# Configure logging
-logging.basicConfig(filename='bulk_index_errors.log', level=logging.ERROR)
-
-# Load the dataset
-df = pd.read_csv('../dataset/combined_dataset.csv', encoding='latin1')
-print(df.head())
-
-# Connect to Elasticsearch
-es = Elasticsearch("http://195.148.31.180:9200")
-
-# Define the index
-index_name = "policy_descriptions"
-
-# Initialize spaCy model for entity recognition
-nlp = spacy.load("en_core_web_sm")
-
-# Define a function for entity recognition
-def entity_recognition(text):
-    doc = nlp(text)
-    return [(ent.text, ent.label_) for ent in doc.ents]
-
-# Define a function for topic modeling with enhanced preprocessing
-def topic_modeling(docs, num_topics=3, num_words=4):
-    stopwords = set(nlp.Defaults.stop_words)
-    texts = []
-    for doc in docs:
-        tokens = doc.lower().split()
-        tokens = [word.strip(string.punctuation) for word in tokens if word not in stopwords and len(word) > 1]
-        texts.append(tokens)
-        
-    dictionary = corpora.Dictionary(texts)
-    corpus = [dictionary.doc2bow(text) for text in texts]
-    lda = LdaModel(corpus, num_topics=num_topics, id2word=dictionary, passes=15)
-    
-    topics = []
-    for i, topic in lda.show_topics(formatted=False, num_words=num_words):
-        topics.append([word for word, _ in topic if word not in stopwords and len(word) > 1])
-    
-    return topics
-
-# Index documents with additional data
-def index_documents(df):
-    actions = []
-    for idx, row in df.iterrows():
-        policy_description = row["policy_description"]
-        entities = entity_recognition(policy_description)
-        topics = topic_modeling([policy_description])
-        
-        action = {
-            "_index": index_name,
-            "_source": {
-                "country": row["country"],
-                "policy_description": policy_description,
-                "entities": entities,
-                "topics": topics
-            }
-        }
-        actions.append(action)
-    
-    success, failed = bulk(es, actions, raise_on_error=False)
-    
-    if failed:
-        logging.error(f"{len(failed)} documents failed to index.")
-        for fail in failed:
-            logging.error(f"Error: {fail}")
-            if 'error' in fail:
-                error = fail['error']
-                if 'type' in error and error['type'] == 'mapper_parsing_exception':
-                    logging.error(f"Mapping error: {error['reason']}")
-                elif 'type' in error and error['type'] == 'illegal_argument_exception':
-                    logging.error(f"Illegal argument: {error['reason']}")
-        
-        retry_actions = [fail["create"] for fail in failed if "create" in fail]
-        if retry_actions:
-            bulk(es, retry_actions)
-
-# Example indexing call
-# index_documents(df)
-
-# Search documents using topic modeling and entity recognition data
-def search_documents(query, index_name="policy_descriptions", size=3):
-    # Perform entity recognition and topic modeling on the query
-    entities = entity_recognition(query)
-    topics = topic_modeling([query])
-
-    # Extract entity texts and topic words
-    entity_texts = [ent[0] for ent in entities]
-    topic_words = [word for topic in topics for word in topic]
-
-    # Construct the search query
-    search_query = {
-        "query": {
-            "bool": {
-                "should": [
-                    {"match": {"policy_description": query}},
-                    {"terms": {"entities.text": entity_texts}},
-                    {"terms": {"topics": topic_words}}
-                ],
-                "minimum_should_match": 1
-            }
-        },
-        "size": size
-    }
-
-    response = es.search(index=index_name, body=search_query)
-    return [hit["_source"] for hit in response["hits"]["hits"]]
-
-# Load pre-trained models and tokenizers
-bart_model = BartForConditionalGeneration.from_pretrained("facebook/bart-large-cnn")
-bart_tokenizer = BartTokenizer.from_pretrained("facebook/bart-large-cnn")
-
-distilbert_model = DistilBertForQuestionAnswering.from_pretrained("distilbert-base-uncased-distilled-squad")
-distilbert_tokenizer = DistilBertTokenizer.from_pretrained("distilbert-base-uncased-distilled-squad")
-
-t5_model = T5ForConditionalGeneration.from_pretrained("t5-base")
-t5_tokenizer = T5Tokenizer.from_pretrained("t5-base")
-
-gpt2_model = GPT2LMHeadModel.from_pretrained("gpt2-large")
-gpt2_tokenizer = GPT2Tokenizer.from_pretrained("gpt2-large")
-
-summarization_pipeline = pipeline("summarization", model=bart_model, tokenizer=bart_tokenizer)
-qa_pipeline = pipeline("question-answering", model=distilbert_model, tokenizer=distilbert_tokenizer)
-text_generation_pipeline = pipeline(
-    "text-generation", 
-    model=gpt2_model, 
-    tokenizer=gpt2_tokenizer, 
-    max_length=500,
-    num_return_sequences=1, 
-    temperature=0.7,
-    top_p=0.9, 
-    do_sample=True,
-    truncation=True, 
-    pad_token_id=gpt2_tokenizer.eos_token_id  
+import os
+import json
+from langchain.chains import LLMChain
+from langchain.prompts import PromptTemplate
+from langchain_community.llms.huggingface_pipeline import HuggingFacePipeline
+from models.chunking_models import extract_entities, get_topic_distribution, summarize_documents
+from models.llm_models import (
+    retriever_model,
+    retriever_tokenizer,
+    generator_model,
+    generator_tokenizer,
+    summarizer_model,
+    summarizer_tokenizer,
 )
+# Load the FAISS index and metadata from files
+index_with_ids = faiss.read_index('saved_data/retriever_index_with_ids.faiss')
 
-# Define the LangChain models using the Hugging Face pipelines
-llm_summarization = HuggingFacePipeline(pipeline=summarization_pipeline)
-llm_qa = HuggingFacePipeline(pipeline=qa_pipeline)
-llm_text_generation = HuggingFacePipeline(pipeline=text_generation_pipeline)
+with open('saved_data/metadata.json', 'r', encoding='utf-8') as f:
+    metadata = json.load(f)
 
-# Define prompt templates
-prompt_template_text_generation = PromptTemplate(
-    input_variables=["context", "query"],
-    template="{context}\n"
-)
+# Function to retrieve documents based on the query
+def retrieve_documents(query, countries=None, top_k=4):
+    # Tokenize and encode the query using the retriever model
+    inputs = retriever_tokenizer(query, return_tensors="pt", truncation=True, padding=True)
+    outputs = retriever_model(**inputs)
+    query_embedding = outputs.last_hidden_state.mean(dim=1).detach().numpy()
 
-# Custom class for topic modeling
-class TopicModelingChain:
-    def run(self, inputs):
-        docs = inputs["docs"]
-        topics = topic_modeling(docs)
-        return {"topics": topics}
+    # Search the FAISS index using the query embedding
+    distances, indices = index_with_ids.search(query_embedding, len(metadata))
 
-# Custom class for entity recognition
-class EntityRecognitionChain:
-    def run(self, inputs):
-        text = inputs["context"]
-        entities = entity_recognition(text)
-        return {"entities": entities}
+    query_topics = get_topic_distribution(query)
+    query_entities = extract_entities(query)
 
-# Create the chains for different tasks
-topic_modeling_chain = TopicModelingChain()
-entity_recognition_chain = EntityRecognitionChain()
+    # Score and rank the retrieved documents
+    doc_scores = []
+    for i in range(len(indices[0])):
+        idx = indices[0][i]
+        doc_metadata = metadata[str(idx)]
 
-response_chain_text_generation = LLMChain(
-    llm=llm_text_generation,
-    prompt=prompt_template_text_generation
-)
+        if countries and not any(country.lower() in doc_metadata['document'].lower() for country in countries):
+            continue
 
-summarization_chain = LLMChain(
-    llm=llm_summarization,
-    prompt=PromptTemplate(
-        input_variables=["context"],
-        template="{context}"
+        doc_topic_score = sum(query_topics.get(str(topic), 0) * weight for topic, weight in doc_metadata['topics'].items())
+        doc_entity_score = len(set(ent[0] for ent in query_entities) & set(ent[0] for ent in doc_metadata['entities']))
+
+        total_score = 0.5 * distances[0][i] - 2.0 * doc_topic_score + 2.0 * doc_entity_score
+
+        if countries and any(country.lower() in doc_metadata['document'].lower() for country in countries):
+            total_score *= 0.5
+
+        doc_scores.append((total_score, idx))
+
+    # Sort and return the top-k documents
+    doc_scores.sort(key=lambda x: x[0])
+    print("I am langchain program")
+    return [metadata[str(i)]['document'] for _, i in doc_scores[:top_k]]
+
+# Modify the generate_response function to use LangChain
+def generate_response(query, countries=None):
+    # Retrieve and summarize documents
+    retrieved_docs = retrieve_documents(query, countries)
+    summaries = summarize_documents(retrieved_docs)
+    context = " ".join(summaries)
+    
+    # Ensure the context length does not exceed the model's max length
+    max_input_length = generator_tokenizer.model_max_length - 20
+    context = generator_tokenizer.decode(generator_tokenizer.encode(context, max_length=max_input_length, truncation=True))
+
+    # Create a Hugging Face pipeline for the generator model
+    generator_pipeline = pipeline('text-generation', model=generator_model, tokenizer=generator_tokenizer, max_new_tokens=150)
+
+    # Wrap the Hugging Face pipeline in a LangChain-compatible interface
+    langchain_pipeline = HuggingFacePipeline(pipeline=generator_pipeline)
+
+    # Define a prompt template
+    prompt_template = PromptTemplate(
+        input_variables=["query", "context"], 
+        template="Question: {query}\n\nContext: {context}\n\nAnswer:"
     )
-)
 
-qa_chain = LLMChain(
-    llm=llm_qa,
-    prompt=PromptTemplate(
-        input_variables=["context", "query"],
-        template="{context}\nQuestion: {query}\nAnswer:"
-    )
-)
+    # Initialize the LLMChain with the prompt template and generator pipeline
+    llm_chain = LLMChain(prompt=prompt_template, llm=langchain_pipeline)
 
-# Combined chain with routing logic
-class CombinedChain:
-    def run(self, inputs):
-        query = inputs["query"].lower()
-        
-        if "summarize" in query or "summary" in query:
-            summary_result = summarization_chain.run({"context": inputs["context"]})
-            inputs["context"] = summary_result
-            response = None
-        elif any(q_word in query for q_word in ["who", "what", "when", "where", "why", "how"]):
-            qa_input = {"question": inputs["query"], "context": inputs["context"]}
-            qa_result = qa_pipeline(qa_input)
-            response = qa_result['answer']
-        else:
-            response = response_chain_text_generation.run(inputs)
-        
-        # Extract entities and topics from the context
-        entities_result = entity_recognition_chain.run({"context": inputs["context"]})
-        topics_result = topic_modeling_chain.run({"docs": [inputs["context"]]})
-        
-        # Include entities and topics in the final result
-        result = {
-            "summary": inputs.get("context", None) if "summarize" in query or "summary" in query else None,
-            "response": response,
-            "entities": entities_result.get("entities"),
-            "topics": topics_result.get("topics")
-        }
-        return result
+    # Generate the response using LangChain
+    response = llm_chain.run({"query": query, "context": context})
+    
+    return response
 
-combined_chain = CombinedChain()
-
-# Example search and response generation with validation
-query = "Explain the impact of renewable energy on global warming."
-retrieved_docs = search_documents(query)
-print("Retrieved Documents:", retrieved_docs)
-
-combined_context = " ".join([doc["policy_description"] for doc in retrieved_docs])
-docs = [doc["policy_description"] for doc in retrieved_docs]
-inputs = {
-    "context": combined_context,
-    "query": query,
-    "docs": docs
-}
-
-# Run the combined chain
-result = combined_chain.run(inputs)
-response = result["response"]
-entities = result["entities"]
-topics = result["topics"]
-
-print("Generated Response:", response)
-print("Extracted Entities:", entities)
-print("Extracted Topics:", topics)
+# Example usage
+query = "What tax incentives does Norway provide for electric vehicles?"
+country = ["Norway"]
+response = generate_response(query, country)
+print("Response:")
+print(response)
