@@ -7,8 +7,7 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #343541;
-            color: #d1d5db;
+            background-color: #f7f7f7;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -16,62 +15,123 @@
             margin: 0;
         }
         #chatbox {
-            width: 90%;
+            width: 100%;
             max-width: 800px;
             height: 80%;
             display: flex;
             flex-direction: column;
-            border: 1px solid #3e3f4b;
+            border: 1px solid #ddd;
             border-radius: 8px;
-            background-color: #40414f;
+            background-color: #fff;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
         #messages {
             flex: 1;
             overflow-y: auto;
             padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        .message-container {
+            display: flex;
+            align-items: flex-end;
+            margin: 10px 0;
+        }
+        .message-container.user {
+            justify-content: flex-end;
+        }
+        .message-container.bot {
+            justify-content: flex-start;
+        }
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin: 0 10px;
         }
         .message {
-            margin: 10px 0;
-            padding: 15px;
-            border-radius: 8px;
+            padding: 10px 15px;
+            border-radius: 20px;
+            display: inline-block;
+            max-width: 70%;
+            font-size: 14px;
+            line-height: 1.4;
+            word-wrap: break-word;
         }
-        .user {
-            background-color: #2c2c38;
+        .user .message {
+            background-color: #cde3f1;
+            border-radius: 20px 20px 0 20px;
             text-align: right;
         }
-        .bot {
-            background-color: #3e3f4b;
+        .bot .message {
+            background-color: #f1f1f1;
+            border-radius: 20px 20px 20px 0;
+            text-align: left;
         }
         form {
             display: flex;
             padding: 10px;
-            border-top: 1px solid #3e3f4b;
-            background-color: #343541;
+            border-top: 1px solid #ddd;
+            background-color: #fff;
         }
         #user-input {
             flex: 1;
             padding: 10px;
-            border: 1px solid #3e3f4b;
-            border-radius: 5px;
-            background-color: #3e3f4b;
-            color: #d1d5db;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            background-color: #f1f1f1;
+            color: #333;
+            font-size: 14px;
         }
         #user-input:focus {
             outline: none;
-            border-color: #5f5f7a;
+            border-color: #ccc;
         }
         button {
             padding: 10px 20px;
             border: none;
-            border-radius: 5px;
-            background-color: #10a37f;
+            border-radius: 20px;
+            background-color: #007bff;
             color: #fff;
             cursor: pointer;
             margin-left: 10px;
+            font-size: 14px;
         }
         button:hover {
-            background-color: #0e8b6a;
+            background-color: #0056b3;
+        }
+        .typing-indicator {
+            display: flex; /* Ensures the indicator is shown immediately */
+            align-items: center;
+            margin: 10px 0;
+        }
+        .typing-indicator img {
+            margin-right: 10px;
+        }
+        .typing-indicator span {
+            font-size: 24px; 
+            letter-spacing: 4px;
+            color: #888;
+            display: inline-block;
+            animation: blink 1.5s infinite;
+        }
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes blink {
+            0%, 100% {
+                opacity: 0.2;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.5);
+            }
         }
     </style>
 </head>
@@ -94,11 +154,27 @@
             userInput.value = '';
 
             const userMessageElement = document.createElement('div');
-            userMessageElement.textContent = `You: ${userMessage}`;
-            userMessageElement.classList.add('message', 'user');
+            userMessageElement.classList.add('message-container', 'user');
+            userMessageElement.innerHTML = `
+                <div class="message">${userMessage}</div>
+                <img src="{{ url_for('static', filename='images/user.jpg') }}" alt="User Avatar" class="avatar">
+            `;
             messages.appendChild(userMessageElement);
 
-            fetch('/get', {  
+            // Create and show the typing indicator
+            const typingIndicator = document.createElement('div');
+            typingIndicator.id = 'typing-indicator';
+            typingIndicator.classList.add('message-container', 'bot', 'typing-indicator');
+            typingIndicator.innerHTML = `
+                <img src="{{ url_for('static', filename='images/bot.jpg') }}" alt="Bot Avatar" class="avatar">
+                <span>...</span>
+            `;
+            messages.appendChild(typingIndicator);
+            messages.scrollTop = messages.scrollHeight; // Auto-scroll to the latest message
+
+            console.log('Typing indicator added.');
+
+            fetch('/get', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -107,27 +183,58 @@
             })
             .then(response => response.json())
             .then(data => {
-                const botMessageElement = document.createElement('div');
-                if (data.error) {
-                    botMessageElement.textContent = `Bot: ${data.error}`;
-                } else {
+                setTimeout(() => {
+                    // Remove the typing indicator
+                    if (typingIndicator) {
+                        messages.removeChild(typingIndicator);
+                        console.log('Typing indicator removed.');
+                    }
+
+                    const botMessageElement = document.createElement('div');
+                    botMessageElement.classList.add('message-container', 'bot');
+
+                    // Check if the response is a bullet point or subtopic format
+                    const formattedResponse = formatResponse(data.response);
+
                     botMessageElement.innerHTML = `
-                        <p><strong></strong> ${data.response}</p>
+                        <img src="{{ url_for('static', filename='images/bot.jpg') }}" alt="Bot Avatar" class="avatar">
+                        <div class="message">${formattedResponse}</div>
                     `;
-                }
-                botMessageElement.classList.add('message', 'bot');
-                messages.appendChild(botMessageElement);
-                messages.scrollTop = messages.scrollHeight; // Auto-scroll to the latest message
+                    messages.appendChild(botMessageElement);
+                    messages.scrollTop = messages.scrollHeight; // Auto-scroll to the latest message
+                    console.log('ended');
+                }, 2000); 
+                // Simulate a 2-second delay
             })
             .catch(error => {
+                // Remove the typing indicator
+                if (typingIndicator) {
+                    messages.removeChild(typingIndicator);
+                    console.log('Typing indicator removed due to error.');
+                }
+
                 console.error('Error:', error);
                 const errorMessageElement = document.createElement('div');
-                errorMessageElement.textContent = 'Error: Could not get a response from the bot.';
-                errorMessageElement.classList.add('message', 'bot');
+                errorMessageElement.classList.add('message-container', 'bot');
+                errorMessageElement.innerHTML = `
+                    <img src="{{ url_for('static', filename='images/bot.jpg') }}" alt="Bot Avatar" class="avatar">
+                    <div class="message">Error: Could not get a response from the bot.</div>
+                `;
                 messages.appendChild(errorMessageElement);
                 messages.scrollTop = messages.scrollHeight; // Auto-scroll to the latest message
             });
         });
+
+        // Function to format the response with proper HTML formatting
+        function formatResponse(response) {
+            // Replace Markdown-style **bold** with HTML <strong> tags
+            let formatted = response.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+            // Format numbered points and bullet points with line breaks
+            formatted = formatted.replace(/(\d+\.\s)/g, '<br>$1');
+            
+            return formatted;
+        }
     </script>
 </body>
 </html>

@@ -20,7 +20,7 @@ from RAG.models.llm_models import (
 )
 from langchain.llms import OpenAI
 import time
-
+import re
 # Load the FAISS index and metadata from files
 index_with_ids = faiss.read_index('saved_data/retriever_index_with_ids.faiss')
 
@@ -99,6 +99,12 @@ def generate_response(query, countries=None):
         "Take care! If you need anything, feel free to ask.",
         "Bye! I'm here if you need more help."
     ]
+
+    introduction_responses = [
+        "I am NeuroClima Bot, an intelligent assistant designed to help you access and understand climate change policy data.",
+        "Hello! I'm NeuroClima Bot. My purpose is to provide information and insights about climate change policies.",
+        "I'm NeuroClima Bot. I'm here to assist you with climate change policy data and answer your questions related to it."
+    ]
     
     # Handling greetings
     if query.lower() in ["hello", "hi", "hey", "greetings"]:
@@ -112,6 +118,10 @@ def generate_response(query, countries=None):
     elif query.lower() in ["bye", "goodbye", "see you", "take care"]:
         return random.choice(farewell_responses)
     
+    # Handling introduction and bot's purpose
+    elif any(keyword in query.lower() for keyword in ["who are you", "what are you", "your purpose", "what do you do"]):
+        return random.choice(introduction_responses)
+        
     # For all other queries, proceed with the document retrieval and generation
     else:
         start_time = time.time() 
@@ -131,7 +141,7 @@ def generate_response(query, countries=None):
         )
         
         # Initialize the OpenAI GPT-3.5 LLM instance
-        gpt3_5_llm = OpenAI_GPT3_5_LLM("gpt-3.5-turbo")
+        gpt3_5_llm = OpenAI_GPT3_5_LLM("gpt-4o-mini")
         
         # Initialize the LLMChain with the prompt template and GPT-3.5 LLM
         llm_chain = LLMChain(prompt=prompt_template, llm=gpt3_5_llm)
@@ -147,11 +157,32 @@ def generate_response(query, countries=None):
         # Log or display the duration
         print(f"Response generation took {duration:.2f} seconds.")
 
-        return response
+        # Refine response to stop at a complete sentence or list item
+        def refine_response(response):
+            # Find the last full stop in the response
+            last_full_stop = response.rfind('. ')
+            
+            # If no full stop is found, return the response as is
+            if last_full_stop == -1:
+                return response
+            
+            # Check if the response ends with a number followed by a period
+            if re.match(r'\d+\.', response[last_full_stop + 1:].strip()):
+                # Find the end of the last list item
+                next_full_stop = response.find('.', last_full_stop + 1)
+                if next_full_stop != -1:
+                    return response[:next_full_stop + 1]
+            
+            return response[:last_full_stop + 1]
+
+        # Apply refinement to response
+        refined_response = refine_response(response)
+        
+        return refined_response
 
 # Example usage
-query = "What measures has Norway implemented to reduce methane emissions?"
-country = ["Norway"]
+query = "What are Finland's policies related to managing chemical risks and hazardous substances?"
+country = ["Finland"]
 response = generate_response(query, country)
 print("Response:")
 print(response)
