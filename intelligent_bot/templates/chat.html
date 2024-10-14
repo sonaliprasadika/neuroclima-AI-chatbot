@@ -161,9 +161,12 @@
             `;
             messages.appendChild(userMessageElement);
 
+<<<<<<< HEAD
             // Scroll to the latest message
             messages.scrollTop = messages.scrollHeight;
 
+=======
+>>>>>>> 7dc3653c70980708f55e46cbcd1a8a122f9044d8
             // Create and show the typing indicator
             const typingIndicator = document.createElement('div');
             typingIndicator.id = 'typing-indicator';
@@ -173,7 +176,11 @@
                 <span>...</span>
             `;
             messages.appendChild(typingIndicator);
+<<<<<<< HEAD
             messages.scrollTop = messages.scrollHeight;
+=======
+            messages.scrollTop = messages.scrollHeight; // Auto-scroll to the latest message
+>>>>>>> 7dc3653c70980708f55e46cbcd1a8a122f9044d8
 
             console.log('Typing indicator added.');
 
@@ -197,7 +204,6 @@
                     botMessageElement.classList.add('message-container', 'bot');
 
                     // Check if the response is a bullet point or subtopic format
-                    console.log(data)
                     const formattedResponse = formatResponse(data.response);
 
                     botMessageElement.innerHTML = `
@@ -502,6 +508,12 @@
                 }, 2000); // Simulate a delay before displaying the response
             })
             .catch(error => {
+                // Remove the typing indicator
+                if (typingIndicator) {
+                    messages.removeChild(typingIndicator);
+                    console.log('Typing indicator removed due to error.');
+                }
+
                 console.error('Error:', error);
                 clearInterval(dotsInterval); // Clear the typing indicator in case of error
 
@@ -509,7 +521,11 @@
                 errorMessageElement.classList.add('message-container', 'bot');
                 errorMessageElement.innerHTML = `
                     <img src="{{ url_for('static', filename='images/bot.jpg') }}" alt="Bot Avatar" class="avatar">
+<<<<<<< HEAD
                     <div class="message">Oops! Something went wrong.</div>
+=======
+                    <div class="message">Error: Could not get a response from the bot.</div>
+>>>>>>> 7dc3653c70980708f55e46cbcd1a8a122f9044d8
                 `;
                 messages.appendChild(errorMessageElement);
 
@@ -518,6 +534,7 @@
             });
         });
 
+<<<<<<< HEAD
         // Function to type the message letter by letter
         function typeMessage(text, element, delay) {
             let i = 0;
@@ -539,6 +556,17 @@
             });
 
             return formattedResponse;
+=======
+        // Function to format the response with proper HTML formatting
+        function formatResponse(response) {
+            // Replace Markdown-style **bold** with HTML <strong> tags
+            let formatted = response.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+            // Format numbered points and bullet points with line breaks
+            formatted = formatted.replace(/(\d+\.\s)/g, '<br>$1');
+            
+            return formatted;
+>>>>>>> 7dc3653c70980708f55e46cbcd1a8a122f9044d8
         }
     </script>
 

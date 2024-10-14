@@ -25,8 +25,7 @@ class GetResource(Resource):
                 
                 # Generate the final response using the RAG generator
                 response = generate_response(query, countries)
-                print("response:")
-                print(response)
+                
                 logging.info(f"Generated result: {response}")
 
                 # Prepare the response data

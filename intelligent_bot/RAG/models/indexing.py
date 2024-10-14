@@ -5,8 +5,11 @@ import numpy as np
 import os
 import json
 import pandas as pd
+<<<<<<< HEAD
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
+=======
+>>>>>>> 7dc3653c70980708f55e46cbcd1a8a122f9044d8
 
 # Assuming the functions extract_entities, get_topic_distribution, summarize_documents are defined
 from chunking_models import extract_entities, get_topic_distribution, summarize_documents
@@ -18,7 +21,7 @@ from llm_models import (
 )
 
 # Load the dataset
-df = pd.read_csv('../../dataset/combined_dataset_training.csv', encoding='latin1')
+df = pd.read_csv('../../dataset/combined_dataset.csv', encoding='latin1')
 print(df.head())
 
 # Extract countries and policy descriptions

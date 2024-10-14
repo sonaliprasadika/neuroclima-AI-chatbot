@@ -131,7 +131,6 @@ def generate_response(query, countries=None):
     # Handling introduction and bot's purpose
     elif any(keyword in query.lower() for keyword in ["who are you", "what are you", "your purpose", "what do you do"]):
         return random.choice(introduction_responses)
-
     # For all other queries, proceed with the document retrieval and generation
     else:
         start_time = time.time() 
