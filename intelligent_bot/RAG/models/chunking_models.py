@@ -36,7 +36,7 @@ nlp = spacy.load("en_core_web_sm")
 
 def extract_entities(text):
     doc = nlp(text)
-    return [(ent.text, ent.label_) for ent in doc.ents]
+    return [(ent.text) for ent in doc.ents]
 
 # Topic Modeling
 lda_model = gensim.models.ldamodel.LdaModel(corpus, num_topics=2, id2word=dictionary, passes=15)
