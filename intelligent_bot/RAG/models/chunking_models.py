@@ -7,13 +7,13 @@ import gensim
 from gensim import corpora
 import faiss
 import wikipediaapi
-from RAG.models.llm_models import (
+from llm_models import (
     summarizer_model,
     summarizer_tokenizer,
 )
 
 # Load the dataset
-df = pd.read_csv('dataset/combined_dataset_training.csv', encoding='latin1')
+df = pd.read_csv('../../dataset/combined_dataset_training.csv', encoding='latin1')
 print(df.head())
 
 # Extract countries and policy descriptions
@@ -36,7 +36,7 @@ nlp = spacy.load("en_core_web_sm")
 
 def extract_entities(text):
     doc = nlp(text)
-    return [(ent.text, ent.label_) for ent in doc.ents]
+    return [(ent.text) for ent in doc.ents]
 
 # Topic Modeling
 lda_model = gensim.models.ldamodel.LdaModel(corpus, num_topics=2, id2word=dictionary, passes=15)

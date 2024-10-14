@@ -5,6 +5,8 @@ import numpy as np
 import os
 import json
 import pandas as pd
+from elasticsearch import Elasticsearch
+from elasticsearch.helpers import bulk
 
 # Assuming the functions extract_entities, get_topic_distribution, summarize_documents are defined
 from chunking_models import extract_entities, get_topic_distribution, summarize_documents
@@ -16,7 +18,7 @@ from llm_models import (
 )
 
 # Load the dataset
-df = pd.read_csv('../../dataset/combined_dataset.csv', encoding='latin1')
+df = pd.read_csv('../../dataset/combined_dataset_training.csv', encoding='latin1')
 print(df.head())
 
 # Extract countries and policy descriptions
@@ -43,6 +45,10 @@ document_embeddings = np.vstack(document_embeddings)
 # Assign unique IDs to each document
 document_ids = np.arange(len(combined_documents))
 
+# Debugging Step: Check the lengths of various data structures
+print(f"Number of combined documents: {len(combined_documents)}")
+print(f"Number of document embeddings: {len(document_embeddings)}")
+
 # Create a FAISS index with ID mapping
 dimension = document_embeddings.shape[1]
 index = faiss.IndexFlatL2(dimension)
@@ -58,72 +64,72 @@ faiss.write_index(index_with_ids, 'saved_data/retriever_index_with_ids.faiss')
 # Prepare metadata mapping and convert keys to strings
 metadata = {}
 for idx in document_ids:
-    # Assuming extract_entities and get_topic_distribution are defined and return the correct format
-    document_entities = extract_entities(combined_documents[idx])
-    document_topics = get_topic_distribution(combined_documents[idx])
-    
-    # Convert NumPy float32 to Python float for JSON serialization
-    topics_converted = {str(topic): float(weight) for topic, weight in document_topics.items()}
-    
-    metadata[str(idx)] = {
-        'document': combined_documents[idx],
-        'entities': document_entities,
-        'topics': topics_converted
-    }
+    try:
+        # Extract entities and topics for each document
+        document_entities = extract_entities(combined_documents[idx])
+        document_topics = get_topic_distribution(combined_documents[idx])
+
+        # Debugging Step: Check for potential issues
+        if document_entities is None or document_topics is None:
+            print(f"Missing data for document ID {idx}. Skipping.")
+            continue
+
+        # Convert NumPy float32 to Python float for JSON serialization
+        topics_converted = {str(topic): float(weight) for topic, weight in document_topics.items()}
+
+        # Store metadata
+        metadata[str(idx)] = {
+            'document': combined_documents[idx],
+            'entities': document_entities,
+            'topics': topics_converted
+        }
+    except IndexError as e:
+        print(f"Error processing document ID {idx}: {e}")
+        continue
 
 # Save metadata as JSON
 with open('saved_data/metadata.json', 'w', encoding='utf-8') as f:
     json.dump(metadata, f, ensure_ascii=False, indent=4)
 
+# Connect to Elasticsearch
+es = Elasticsearch("http://195.148.31.180:9200")  # Replace with your actual Elasticsearch endpoint
 
-# from elasticsearch import Elasticsearch, helpers
-# import json
+# Define the index name
+INDEX_NAME = "test123"
 
-# # Initialize Elasticsearch client
-# es = Elasticsearch([{'host': 'http://195.148.31.180:9200', 'port': 9200}])
+# Create the index if it doesn't exist
+if not es.indices.exists(index=INDEX_NAME):
+    es.indices.create(index=INDEX_NAME, body={
+        "mappings": {
+            "properties": {
+                "document": {"type": "text"},
+                "entities": {"type": "nested"},  # Store entities as a nested field
+                "topics": {"type": "nested"},    # Store topics as a nested field
+                "embedding": {"type": "dense_vector", "dims": 768}  # Store document embeddings
+            }
+        }
+    })
 
-# # Define the index name
-# index_name = 'indexed_policy_descriptions'
+# Ensure that only valid data is indexed
+actions = []
+for idx, doc in metadata.items():
+    try:
+        action = {
+            "_index": INDEX_NAME,
+            "_id": idx,
+            "_source": {
+                "document": doc['document'],
+                "entities": doc['entities'],
+                "topics": doc['topics'],
+                "embedding": document_embeddings[int(idx)].tolist()  # Convert to list for JSON serialization
+            }
+        }
+        actions.append(action)
+    except KeyError as e:
+        print(f"Error with data for document ID {idx}: {e}")
+        continue
 
-# # Define the index settings and mappings
-# index_settings = {
-#     "settings": {
-#         "number_of_shards": 1,
-#         "number_of_replicas": 1
-#     },
-#     "mappings": {
-#         "properties": {
-#             "document": {"type": "text"},
-#             "entities": {"type": "keyword"},
-#             "topics": {"type": "object"},
-#             "embedding": {
-#                 "type": "dense_vector",
-#                 "dims": document_embeddings.shape[1]  # embedding dimensions
-#             }
-#         }
-#     }
-# }
+# Bulk ingest data into Elasticsearch
+bulk(es, actions)
 
-# # Create the index if it doesn't exist
-# if not es.indices.exists(index=index_name):
-#     es.indices.create(index=index_name, body=index_settings)
-
-# # Prepare documents for bulk ingestion
-# actions = []
-# for idx in document_ids:
-#     action = {
-#         "_index": index_name,
-#         "_id": str(idx),
-#         "_source": {
-#             "document": combined_documents[idx],
-#             "entities": document_entities[idx],
-#             "topics": metadata[str(idx)]['topics'],
-#             "embedding": document_embeddings[idx].tolist()  # Convert to list for JSON serialization
-#         }
-#     }
-#     actions.append(action)
-
-# # Bulk ingest data into Elasticsearch
-# helpers.bulk(es, actions)
-
-# print(f"Data indexed into Elasticsearch index '{index_name}'.")
+print(f"Data indexed into Elasticsearch index '{INDEX_NAME}'.")
