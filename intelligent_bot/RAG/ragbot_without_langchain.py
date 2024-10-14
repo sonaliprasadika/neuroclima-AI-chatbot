@@ -17,7 +17,7 @@ from models.llm_models import (
 import openai
 
 # Set your OpenAI API key here
-openai.api_key = "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"
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # Load the FAISS index and metadata from files
 index_with_ids = faiss.read_index('saved_data/retriever_index_with_ids.faiss')
