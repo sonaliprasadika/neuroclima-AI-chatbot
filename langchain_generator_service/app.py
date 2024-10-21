@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-from retrieve_service import retrieve_documents, generate_response
+from service import generate_response
 
 app = Flask(__name__)
 
