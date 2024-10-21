@@ -1,39 +1,28 @@
 from flask import request, make_response, jsonify
 from flask_restful import Resource
 import logging
-from RAG.lanchain_rag import retrieve_documents, generate_response
+import requests
 
 class GetResource(Resource):
-    def __init__(self):
-        # No need to specify an Elasticsearch index anymore
-        pass
-
     def post(self):
         data = request.json
         query = data.get("query")
+        print(data)
         countries = data.get("countries")  # Assuming countries could be passed in the request as well
         if query:
             try:
                 # Log the incoming query
                 logging.info(f"Received query: {query}")
 
-                # Use the RAG retriever to get relevant documents
-                retrieved_docs = retrieve_documents(query, countries)
+                # Send the query to the generator service (running on port 5003)
+                generator_url = "http://localhost:5003/generate"
+                response = requests.post(generator_url, json={"query": query, "countries": countries})
                 
-                if not retrieved_docs:
+                if response.status_code != 200:
                     return make_response(jsonify({"error": "No relevant documents found"}), 404)
                 
-                # Generate the final response using the RAG generator
-                response = generate_response(query, countries)
-                print("response:")
-                print(response)
-                logging.info(f"Generated result: {response}")
-
-                # Prepare the response data
-                response_data = {
-                    "response": response
-                }
-
+                # Process the response from the generator service
+                response_data = response.json()
                 return make_response(jsonify(response_data), 200)
             except Exception as e:
                 logging.error(f"Error processing query: {str(e)}")

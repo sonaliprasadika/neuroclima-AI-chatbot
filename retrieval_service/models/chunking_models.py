@@ -7,7 +7,7 @@ import gensim
 from gensim import corpora
 import faiss
 import wikipediaapi
-from RAG.models.llm_models import (
+from models.llm_models import (
     summarizer_model,
     summarizer_tokenizer,
 )

@@ -17,8 +17,8 @@ from elasticsearch import Elasticsearch, exceptions
 from elasticsearch.exceptions import TransportError  
 from elasticsearch.helpers import bulk
 from langchain_community.llms.huggingface_pipeline import HuggingFacePipeline
-from RAG.models.chunking_models import extract_entities, get_topic_distribution, summarize_documents
-from RAG.models.llm_models import (
+from models.chunking_models import extract_entities, get_topic_distribution, summarize_documents
+from models.llm_models import (
     retriever_model,
     retriever_tokenizer,
     summarizer_model,
