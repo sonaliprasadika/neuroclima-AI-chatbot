@@ -36,7 +36,7 @@ def OpenAI_GPT3_5_LLM(model, max_tokens=100, temperature=0.7, top_p=1):
     )
 
 def retrieve_documents(query, countries):
-    url = "http://localhost:5002/retrieve"
+    url = "http://86.50.231.228:5002/retrieve"
     payload = {
         "query": query,
         "countries": countries
