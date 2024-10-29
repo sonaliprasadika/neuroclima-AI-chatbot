@@ -15,7 +15,8 @@ class GetResource(Resource):
                 logging.info(f"Received query: {query}")
 
                 # Send the query to the generator service (running on port 5003)
-                generator_url = "http://localhost:5003/generate"
+                # generator_url = "http://86.50.230.170:5003/generate"
+                generator_url = "http://127.0.0.1:5003/generate"
                 response = requests.post(generator_url, json={"query": query, "countries": countries})
                 
                 if response.status_code != 200:
