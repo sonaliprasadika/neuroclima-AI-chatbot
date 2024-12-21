@@ -7,13 +7,17 @@ import gensim
 from gensim import corpora
 import faiss
 import wikipediaapi
-from RAG.models.llm_models import (
+# from RAG.models.llm_models import (
+#     summarizer_model,
+#     summarizer_tokenizer,
+# )
+from models.llm_models import (
     summarizer_model,
     summarizer_tokenizer,
 )
 
 # Load the dataset
-df = pd.read_csv('dataset/combined_dataset_training.csv', encoding='latin1')
+df = pd.read_csv('../dataset/combined_dataset_training.csv', encoding='latin1')
 print(df.head())
 
 # Extract countries and policy descriptions

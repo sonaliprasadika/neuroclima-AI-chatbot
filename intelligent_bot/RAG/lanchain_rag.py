@@ -11,8 +11,15 @@ from dotenv import load_dotenv
 from langchain.chains import LLMChain
 from langchain.prompts import PromptTemplate
 from langchain_community.llms.huggingface_pipeline import HuggingFacePipeline
-from RAG.models.chunking_models import extract_entities, get_topic_distribution, summarize_documents
-from RAG.models.llm_models import (
+# from RAG.models.chunking_models import extract_entities, get_topic_distribution, summarize_documents
+# from RAG.models.llm_models import (
+#     retriever_model,
+#     retriever_tokenizer,
+#     summarizer_model,
+#     summarizer_tokenizer,
+# )
+from models.chunking_models import extract_entities, get_topic_distribution, summarize_documents
+from models.llm_models import (
     retriever_model,
     retriever_tokenizer,
     summarizer_model,
@@ -134,6 +141,9 @@ def generate_response(query, countries=None):
         max_input_length = 4096 - 500  # Adjust based on your model's max token length
         context = context[:max_input_length]
         
+        print("context:")
+        print(context)
+
         # Define a prompt template
         prompt_template = PromptTemplate(
             input_variables=["query", "context"], 
@@ -181,8 +191,8 @@ def generate_response(query, countries=None):
         return refined_response
 
 # Example usage
-query = "What are Finland's policies related to managing chemical risks and hazardous substances?"
-country = ["Finland"]
+query = "How is Norway addressing emissions from the waste sector?"
+country = ["Norway"]
 response = generate_response(query, country)
 print("Response:")
 print(response)

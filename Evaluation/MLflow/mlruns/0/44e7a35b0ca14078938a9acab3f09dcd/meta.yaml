@@ -1,0 +1,15 @@
+artifact_uri: file:///home/ubuntu/neuroclimabot/ChatBot/Evaluation/MLflow/mlruns/0/44e7a35b0ca14078938a9acab3f09dcd/artifacts
+end_time: 1734605928001
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 44e7a35b0ca14078938a9acab3f09dcd
+run_name: RAG_Evaluation
+run_uuid: 44e7a35b0ca14078938a9acab3f09dcd
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1734605895679
+status: 3
+tags: []
+user_id: ubuntu
