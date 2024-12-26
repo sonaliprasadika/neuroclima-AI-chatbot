@@ -4,3 +4,4 @@
 /Fine_tuned_summarization_model/t5-summarization
 /Fine_tuned_summarization_model/.env
 /Fine_tuned_summarization_model/logs
+__pycache__/
