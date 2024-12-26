@@ -1,9 +1,0 @@
-digest: f9c2f9d1
-name: dataset
-profile: '{"num_rows": 3, "num_elements": 9}'
-schema: '{"mlflow_colspec": [{"type": "string", "name": "inputs", "required": true},
-  {"type": "string", "name": "outputs", "required": true}, {"type": "string", "name":
-  "ground_truth", "required": true}]}'
-source: '{"tags": {"mlflow.user": "ubuntu", "mlflow.source.name": "eval_mlflow.py",
-  "mlflow.source.type": "LOCAL", "mlflow.source.git.commit": "ee2fb646caa0abe32755c1cb861e4b6bcf1da0d8"}}'
-source_type: code

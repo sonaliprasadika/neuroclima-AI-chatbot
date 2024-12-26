@@ -1,7 +1,0 @@
-messages:
-- content: Answer the following question in two sentences
-  role: system
-- content: '{question}'
-  role: user
-model: gpt-4o-mini
-task: chat.completions
