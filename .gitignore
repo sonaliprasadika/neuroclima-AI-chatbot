@@ -5,3 +5,5 @@
 /Fine_tuned_summarization_model/.env
 /Fine_tuned_summarization_model/logs
 __pycache__/
+/myenv
+/NLP_models_evaluation/.ipynb_checkpoints
