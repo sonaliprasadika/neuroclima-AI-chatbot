@@ -1,5 +1,12 @@
 torch
 transformers
 "numpy<2"
-faiss-cpu
 langchain_elasticsearch
+flask
+elasticsearch
+faiss-cpu
+spacy
+gensim
+wikipedia-api
+sentencepiece
+en-core-web-sm
