@@ -153,7 +153,7 @@
     <!-- Chatbox -->
     <div id="chatbox">
         <div id="chatbox-header">
-            <h2>Neuroclima Chatbot</h2>
+            <h2>NeuroClimaBot</h2>
             <button id="feedback-btn" onclick="window.open('https://mfxr7o9t.forms.app/application-form', '_blank')">Feedback</button>
         </div>
         <div id="messages"></div>
@@ -232,22 +232,18 @@
                     clearInterval(dotsInterval);
                     if (typingIndicator) {
                         messages.removeChild(typingIndicator);
-                        console.log('Typing indicator removed.');
                     }
 
                     const botMessageElement = document.createElement('div');
                     botMessageElement.classList.add('message-container', 'bot');
-
-                    const formattedResponse = formatResponse(data.response);
-
                     botMessageElement.innerHTML = `
                         <img src="{{ url_for('static', filename='images/bot.jpg') }}" alt="Bot Avatar" class="avatar">
-                        <div class="message" id="bot-message"></div>
+                        <div class="message" id="bot-message-${Date.now()}"></div>
                     `;
                     messages.appendChild(botMessageElement);
 
                     // Use the typeMessage function to display the response letter by letter
-                    typeMessage(formattedResponse, document.getElementById('bot-message'), 50);
+                    typeMessage(data.response, botMessageElement.querySelector('.message'), 50);
 
                     // Scroll to the latest message
                     messages.scrollTop = messages.scrollHeight;
@@ -257,7 +253,6 @@
                 // Remove the typing indicator
                 if (typingIndicator) {
                     messages.removeChild(typingIndicator);
-                    console.log('Typing indicator removed due to error.');
                 }
 
                 console.error('Error:', error);

@@ -11,20 +11,21 @@ from dotenv import load_dotenv
 from langchain.chains import LLMChain
 from langchain.prompts import PromptTemplate
 from langchain_community.llms.huggingface_pipeline import HuggingFacePipeline
-# from RAG.models.chunking_models import extract_entities, get_topic_distribution, summarize_documents
-# from RAG.models.llm_models import (
-#     retriever_model,
-#     retriever_tokenizer,
-#     summarizer_model,
-#     summarizer_tokenizer,
-# )
-from models.chunking_models import extract_entities, get_topic_distribution, summarize_documents
-from models.llm_models import (
+from RAG.models.chunking_models import extract_entities, get_topic_distribution, summarize_documents
+from RAG.models.llm_models import (
     retriever_model,
     retriever_tokenizer,
     summarizer_model,
     summarizer_tokenizer,
 )
+# from models.chunking_models import extract_entities, get_topic_distribution, summarize_documents
+# from models.llm_models import (
+#     retriever_model,
+#     retriever_tokenizer,
+#     summarizer_model,
+#     summarizer_tokenizer,
+# )
+from langchain.chat_models import ChatOpenAI
 from langchain.llms import OpenAI
 import time
 import re
@@ -38,18 +39,19 @@ with open('saved_data/metadata.json', 'r', encoding='utf-8') as f:
 load_dotenv()
 
 # Set the API key using the environment variable
-openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # Define a custom LLM class for OpenAI GPT-3.5
 def OpenAI_GPT3_5_LLM(model, max_tokens=150, temperature=0.7, top_p=1):
     # Return a LangChain OpenAI LLM instance configured with the provided parameters
-    return OpenAI(
-        model_name=model,
+    return ChatOpenAI(
+        model=model,  # Use 'model' instead of 'model_name'
         max_tokens=max_tokens,
         temperature=temperature,
-        top_p=top_p
+        top_p=top_p,
+        request_timeout=60,
+        api_key=os.getenv("OPENAI_API_KEY"),
     )
-    
+
 # Function to retrieve documents based on the query
 def retrieve_documents(query, countries=None, top_k=4):
     # Tokenize and encode the query using the retriever model
@@ -94,13 +96,13 @@ def generate_response(query, countries=None):
         "Hi there! What can I do for you?",
         "Greetings! How can I help you today?"
     ]
-    
+
     thank_you_responses = [
         "You're welcome! Is there anything else you need?",
         "No problem! Happy to help.",
         "Glad I could assist. Anything else?"
     ]
-    
+
     farewell_responses = [
         "Goodbye! Have a great day!",
         "Take care! If you need anything, feel free to ask.",
@@ -109,26 +111,26 @@ def generate_response(query, countries=None):
 
     introduction_responses = [
         "I am NeuroClima Bot, an intelligent assistant designed to help you access and understand climate change policy data.",
-        "Hello! I'm NeuroClima Bot. My purpose is to provide information and insights about climate change policies.",
+        "I'm NeuroClima Bot. My purpose is to provide information and insights about climate change policies.",
         "I'm NeuroClima Bot. I'm here to assist you with climate change policy data and answer your questions related to it."
     ]
-    
+
     # Handling greetings
     if query.lower() in ["hello", "hi", "hey", "greetings"]:
         return random.choice(greeting_responses)
-    
+
     # Handling thank you
     elif "thank" in query.lower():
         return random.choice(thank_you_responses)
-    
+
     # Handling farewells
     elif query.lower() in ["bye", "goodbye", "see you", "take care"]:
         return random.choice(farewell_responses)
-    
+
     # Handling introduction and bot's purpose
     elif any(keyword in query.lower() for keyword in ["who are you", "what are you", "your purpose", "what do you do"]):
         return random.choice(introduction_responses)
-        
+
     # For all other queries, proceed with the document retrieval and generation
     else:
         start_time = time.time() 
@@ -136,11 +138,11 @@ def generate_response(query, countries=None):
         retrieved_docs = retrieve_documents(query, countries)
         summaries = summarize_documents(retrieved_docs)
         context = " ".join(summaries)
-        
+
         # Ensure the context length does not exceed the model's max length
         max_input_length = 4096 - 500  # Adjust based on your model's max token length
         context = context[:max_input_length]
-        
+
         print("context:")
         print(context)
 
@@ -149,21 +151,21 @@ def generate_response(query, countries=None):
             input_variables=["query", "context"], 
             template="Question: {query}\n\nContext: {context}\n\nAnswer:"
         )
-        
+
         # Initialize the OpenAI GPT-3.5 LLM instance
         gpt3_5_llm = OpenAI_GPT3_5_LLM("gpt-4o-mini")
-        
+
         # Initialize the LLMChain with the prompt template and GPT-3.5 LLM
         llm_chain = LLMChain(prompt=prompt_template, llm=gpt3_5_llm)
-        
+
         # Generate the response using LangChain
         response = llm_chain.run({"query": query, "context": context})
-        
+
         end_time = time.time()  # Record end time
-        
+
         # Calculate the duration
         duration = end_time - start_time
-        
+
         # Log or display the duration
         print(f"Response generation took {duration:.2f} seconds.")
 
@@ -171,23 +173,23 @@ def generate_response(query, countries=None):
         def refine_response(response):
             # Find the last full stop in the response
             last_full_stop = response.rfind('. ')
-            
+
             # If no full stop is found, return the response as is
             if last_full_stop == -1:
                 return response
-            
+
             # Check if the response ends with a number followed by a period
             if re.match(r'\d+\.', response[last_full_stop + 1:].strip()):
                 # Find the end of the last list item
                 next_full_stop = response.find('.', last_full_stop + 1)
                 if next_full_stop != -1:
                     return response[:next_full_stop + 1]
-            
+
             return response[:last_full_stop + 1]
 
         # Apply refinement to response
         refined_response = refine_response(response)
-        
+
         return refined_response
 
 # Example usage
