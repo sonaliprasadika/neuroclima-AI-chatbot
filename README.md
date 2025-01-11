@@ -1,6 +1,14 @@
 # AI-Powered Chatbot for Climate Change Policy Data Using RAG and LangChain
 An intelligent chatbot is designed to retrieve data and provide customized responses to user inquiries. It is a valuable tool for decision-makers, especially those operating within specific domains, offering timely and relevant information to support their decision-making processes.
 
+## Functionalities
+- Backend to integrate with the AI component of the chatbot and the UI using Python Flask.
+- Basic UI using HTML, CSS, and JavaScript.
+- RAG evaluation.
+- NLP model evaluation.
+- Chatbot conversation evaluation.
+- Fine-tune the summarization model.
+
 ## 🔗 Dependencies and Setup
 
 The following tools and libraries are required for setting up the project. 
@@ -30,49 +38,21 @@ pip install -r requirements.txt
 ```
 
 ## 🔗 Run the Chatbot Application and Evaluation
-### Run the application inside the intelligent_bot directory
+### Run the application inside the intelligent_bot directory.
 ```bash
 cd intelligent_bot
 ```
 ```bash
 python3 app.py 
 ```
-### Run Jupyter Notebook files in each evaluation directory.
+### Run Jupyter Notebook files in each evaluation directory to see the evaluation results.
 
-## 🔗 Connection to the MQTT broker
+## 🔗 Host the Server in CSC
+Open http://128.214.253.165:5000/ in browser to load the Chatbot
 
-## Install libraries
-
-- ☑️ micropython-umqtt.simple==1.3.4
-- ☑️ influxdb-client==2.7.11
-
-Adding the properties to the [config.py](pico-code/config.py) should establish connectivity between clients and the broker. In HiveMQ broker, the broker details are under the `OVERVIEW` tab. The `MQTT_USER` and the `MQTT_PWD` are the web client details entered under the `WEB CLIENT` to connect the clients to the server. 
-
-```python
-MQTT_BROKER = '' # broker/server URL
-MQTT_PORT= 8883
-MQTT_USER = ''  # access username
-MQTT_PWD = '' # access password
-```
-Connect on Web Client page using username and password, subscribe all messages.
-
-The connectivity should be established in the MIT app inventor, InfluxDB, and Grafana by changing the properties of the MQTT extension. The same attributes should be used. 
-
-## 🔗 Node-RED and InfluxDB
+## 🔗 Microservice Architecture
 
 ### Node-red: run command prompt as admin: 
-```bash
-node-red 
-```
-Open http://localhost:1880/ in browser
 
-### Influxdb: run command prompt as admin: 
-```bash
-cd "C:\Program Files\InfluxDB"
-```
-```bash
-influxd
-```
-Open http://127.0.0.1:8086/ in browser
 
 
