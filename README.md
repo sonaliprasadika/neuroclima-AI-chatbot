@@ -52,7 +52,21 @@ Open http://128.214.253.165:5000/ in browser to load the Chatbot
 
 ## 🔗 Microservice Architecture
 
-### Node-red: run command prompt as admin: 
+The Microservice Architecture is used to ensure that the RAG, LangChain, and core framework (backend and UI) of the application are implemented as separate, independent services, adding modularity and scalability to the application.
 
+### Checkout to the branch "adding_microservice"
+```bash
+git checkout adding_microservice
+```
+
+### Run the app.py file in each directory (rag_retrieval_service, langchain_generator_service, core_framework)
+```bash
+python3 app.py 
+```
+- rag_retrieval_service - PORT:5002
+- langchain_generator_service - PORT:5003
+- core_framework - PORT:5000
+
+In here, the core framework calls the langchain_generator_service, which in turn calls the rag_retrieval_service.
 
 
