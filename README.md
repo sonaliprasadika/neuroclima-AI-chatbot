@@ -48,6 +48,18 @@ python3 app.py
 ### Run Jupyter Notebook files in each evaluation directory to see the evaluation results.
 
 ## 🔗 Host the Server in CSC
+- Create an instance in the CSC server
+- Deploy the server using Gunicorn
+```bash
+pip install gunicorn
+```
+```bash
+nohup gunicorn -w 4 -b 0.0.0.0:5000 app:app > app.log 2>&1 &
+```
+- Ensure Gunicorn is running
+```bash
+ps aux | grep gunicorn
+```  
 Open http://128.214.253.165:5000/ in browser to load the Chatbot
 
 ## 🔗 Microservice Architecture
